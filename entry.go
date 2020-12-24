@@ -228,7 +228,11 @@ func (entry Entry) log(level Level, msg string) {
 	entry.Message = msg
 	entry.Logger.mu.Lock()
 	if entry.Logger.ReportCaller {
-		entry.Caller = getCaller()
+		if entry.Logger.CallerFunc == nil {
+			entry.Caller = getCaller()
+		} else {
+			entry.Caller = entry.Logger.CallerFunc()
+		}
 	}
 	entry.Logger.mu.Unlock()
 

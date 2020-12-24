@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"os"
+	"runtime"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -33,6 +34,9 @@ type Logger struct {
 
 	// Flag for whether to log caller info (off by default)
 	ReportCaller bool
+
+	// When non-nil overwrites default getCaller func
+	CallerFunc func() *runtime.Frame
 
 	// The logging level the logger should log at. This is typically (and defaults
 	// to) `logrus.Info`, which allows Info(), Warn(), Error() and Fatal() to be
@@ -392,6 +396,12 @@ func (logger *Logger) SetReportCaller(reportCaller bool) {
 	logger.mu.Lock()
 	defer logger.mu.Unlock()
 	logger.ReportCaller = reportCaller
+}
+
+func (logger *Logger) SetCallerFunc(fn func() *runtime.Frame) {
+	logger.mu.Lock()
+	defer logger.mu.Unlock()
+	logger.CallerFunc = fn
 }
 
 // ReplaceHooks replaces the logger hooks and returns the old ones
